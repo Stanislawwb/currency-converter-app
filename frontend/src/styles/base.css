@@ -4,8 +4,15 @@ body {
 	font-size: 18px;
 	color: #000;
 	background-color: #ebebeb;
+	padding-top: 61px;
 }
 
 a {
 	text-decoration: none;
+}
+
+@media (max-width: 767px) {
+	body {
+		padding-top: 50px;
+	}
 }

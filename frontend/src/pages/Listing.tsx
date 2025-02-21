@@ -10,7 +10,9 @@ const Listing = () => {
 						<Breadcrumbs />
 					</div>
 
-					<h1>All Exchange Rates</h1>
+					<div className="section__content">
+						<h1>All Exchange Rates</h1>
+					</div>
 				</div>
 				<Form showAllCurrencies={true} />
 			</div>

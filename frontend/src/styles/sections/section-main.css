@@ -85,3 +85,15 @@
 		}
 	}
 }
+
+@media (max-width: 767px) {
+	.section-main {
+		.section__inner {
+			display: block;
+		}
+
+		.section__aside {
+			border-top: 2px solid #ebebeb;
+		}
+	}
+}

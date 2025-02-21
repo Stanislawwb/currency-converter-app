@@ -159,3 +159,12 @@
 		}
 	}
 }
+
+@media (max-width: 1023px) {
+	.form {
+		.form__rows--two-columns {
+			display: flex;
+			gap: 20px;
+		}
+	}
+}
