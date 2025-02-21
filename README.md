@@ -51,7 +51,7 @@ BANKING_API_URL=https://api.exchangerate-api.com/v4/latest/USD
 #### **Setup Environment Variables**
 Create a `.env` file in the **frontend** directory and add:
 ```env
-VITE_API_BASE_URL=http://localhost:5000/api
+VITE_API_URL=http://localhost:5000/api
 ```
 
 #### **Build & Start Frontend**
