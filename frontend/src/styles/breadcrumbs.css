@@ -1,0 +1,28 @@
+.breadcrumbs {
+	ul {
+		display: flex;
+		gap: 10px;
+		list-style: none;
+	}
+
+	li {
+		position: relative;
+	}
+
+	a {
+		transition: color 0.3s;
+		text-transform: uppercase;
+		font-size: 16px;
+
+		&:hover {
+			color: #f78f1e;
+		}
+	}
+
+	a.active {
+		opacity: 0.6;
+		pointer-events: none;
+		cursor: auto;
+		color: inherit;
+	}
+}
