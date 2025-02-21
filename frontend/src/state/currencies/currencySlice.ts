@@ -1,4 +1,5 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
+const apiUrl = import.meta.env.VITE_API_URL;
 
 interface CurrencyState {
 	rates: Record<string, number>;
@@ -7,8 +8,18 @@ interface CurrencyState {
 	error: string | null;
 }
 
+const loadRatesFromSession = (): Record<string, number> => {
+	try {
+		const storedRates = sessionStorage.getItem("convertedValues");
+		return storedRates ? JSON.parse(storedRates) : {};
+	} catch (error) {
+		console.error("Error loading currencies from sessionStorage:", error);
+		return {};
+	}
+};
+
 const initialState: CurrencyState = {
-	rates: {},
+	rates: loadRatesFromSession(),
 	baseCurrency: "USD",
 	loading: false,
 	error: null,
@@ -17,7 +28,7 @@ const initialState: CurrencyState = {
 export const fetchCurrencies = createAsyncThunk(
 	"currency/fetchCurrencies",
 	async () => {
-		const response = await fetch("http://localhost:5000/api/");
+		const response = await fetch(apiUrl);
 
 		if (!response.ok) throw new Error("Failed to fetch currencies");
 
@@ -39,6 +50,11 @@ export const currencySlice = createSlice({
 				state.loading = false;
 				state.rates = action.payload.rates;
 				state.baseCurrency = action.payload.baseCurrency;
+
+				sessionStorage.setItem(
+					"convertedValues",
+					JSON.stringify(action.payload.rates)
+				);
 			})
 			.addCase(fetchCurrencies.rejected, (state, action) => {
 				state.loading = false;
