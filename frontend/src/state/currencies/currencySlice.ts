@@ -8,18 +8,8 @@ interface CurrencyState {
 	error: string | null;
 }
 
-const loadRatesFromSession = (): Record<string, number> => {
-	try {
-		const storedRates = sessionStorage.getItem("convertedValues");
-		return storedRates ? JSON.parse(storedRates) : {};
-	} catch (error) {
-		console.error("Error loading currencies from sessionStorage:", error);
-		return {};
-	}
-};
-
 const initialState: CurrencyState = {
-	rates: loadRatesFromSession(),
+	rates: {},
 	baseCurrency: "USD",
 	loading: false,
 	error: null,
@@ -27,12 +17,28 @@ const initialState: CurrencyState = {
 
 export const fetchCurrencies = createAsyncThunk(
 	"currency/fetchCurrencies",
-	async () => {
-		const response = await fetch(apiUrl);
+	async (_, { rejectWithValue }) => {
+		try {
+			const response = await fetch(apiUrl);
 
-		if (!response.ok) throw new Error("Failed to fetch currencies");
+			if (!response.ok) throw new Error("Failed to fetch currencies");
 
-		return await response.json();
+			const data = await response.json();
+
+			if (!data.rates) {
+				throw new Error("Invalid API response: missing rates");
+			}
+
+			return data;
+		} catch (error) {
+			console.error("Error fetching currencies:", error);
+
+			if (error instanceof Error) {
+				return rejectWithValue(error.message);
+			} else {
+				return rejectWithValue("An unknown error occured");
+			}
+		}
 	}
 );
 
@@ -48,13 +54,13 @@ export const currencySlice = createSlice({
 			})
 			.addCase(fetchCurrencies.fulfilled, (state, action) => {
 				state.loading = false;
-				state.rates = action.payload.rates;
-				state.baseCurrency = action.payload.baseCurrency;
 
-				sessionStorage.setItem(
-					"convertedValues",
-					JSON.stringify(action.payload.rates)
-				);
+				if (action.payload && action.payload.rates) {
+					state.rates = action.payload.rates;
+					state.baseCurrency = action.payload.baseCurrency;
+				} else {
+					state.error = "Invalid API response: missing rates";
+				}
 			})
 			.addCase(fetchCurrencies.rejected, (state, action) => {
 				state.loading = false;

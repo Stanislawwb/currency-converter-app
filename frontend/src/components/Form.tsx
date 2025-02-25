@@ -1,13 +1,18 @@
 import React, { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
 import Select from "react-select";
-import { useSelector, useDispatch } from "react-redux";
 import { AppDispatch, RootState } from "../state/store";
 import {
 	addCurrency,
+	initialCurrencies,
 	removeCurrency,
+	resetCurrencies,
 } from "../state/currencies/selectedCurrenciesSlice";
-import { convertAllCurrencies } from "../state/currencies/conversionSlice";
-import { useFetchCurrencies } from "../hooks/useFetchCurrencies";
+import { useDispatch } from "react-redux";
+import {
+	convertAllCurrencies,
+	setConvertedValues,
+} from "../state/currencies/conversionSlice";
 
 const availableCurrencies = [
 	{ value: "AED", label: "AED - UAE Dirham" },
@@ -25,66 +30,73 @@ const availableCurrencies = [
 	{ value: "XDR", label: "XDR - SDR (Special Drawing Rights)" },
 ];
 
-const initialCurrencies = ["USD", "EUR", "RUB", "BYN", "PLN", "CNY"];
-
 const Form: React.FC<{ showAllCurrencies?: boolean }> = ({
 	showAllCurrencies = false,
 }) => {
 	const dispatch = useDispatch<AppDispatch>();
+	const [showDropdown, setShowDropdown] = useState(false);
 
 	const selectedCurrencies = useSelector(
-		(state: RootState) => state.selectedCurrencies.selected ?? {}
+		(state: RootState) => state.selectedCurrencies
 	);
 	const convertedValues = useSelector(
 		(state: RootState) => state.conversion.convertedValues
 	);
 
-	const { currencyRates } = useFetchCurrencies();
-
-	const displayedCurrencies = showAllCurrencies
-		? currencyRates
-		: selectedCurrencies;
-
-	const [showDropdown, setShowDropdown] = useState(false);
+	const [inputValues, setInputValues] = useState<Record<string, string>>({});
 
 	useEffect(() => {
-		const storedConversions = sessionStorage.getItem("convertedValues");
+		const updatedValues: Record<string, string> = {};
+		const currencies = showAllCurrencies
+			? Object.keys(convertedValues)
+			: selectedCurrencies;
 
-		if (storedConversions) {
-			const parsedData = JSON.parse(storedConversions);
-
-			if (parsedData.amount && parsedData.fromCurrency) {
-				dispatch(convertAllCurrencies(parsedData));
-			}
-		}
-	}, [dispatch]);
-
-	const handleInputChange = (amount: number, fromCurrency: string) => {
-		dispatch(convertAllCurrencies({ amount, fromCurrency }));
-	};
+		currencies.forEach((currency) => {
+			updatedValues[currency] =
+				convertedValues[currency]?.toString() || "";
+		});
+		setInputValues(updatedValues);
+	}, [convertedValues, selectedCurrencies, showAllCurrencies]);
 
 	const handleSelectCurrency = (
 		selected: { value: string; label: string } | null
 	) => {
-		if (selected && !selectedCurrencies[selected.value]) {
-			const currencyRate = currencyRates[selected.value] ?? 0;
-			dispatch(
-				addCurrency({ currency: selected.value, rate: currencyRate })
-			);
+		if (selected && !selectedCurrencies.includes(selected.value)) {
+			dispatch(addCurrency(selected.value));
 		}
 		setShowDropdown(false);
 	};
 
 	const handleRemoveCurrency = (currency: string) => {
-		if (!initialCurrencies.includes(currency)) {
-			dispatch(removeCurrency(currency));
-		}
+		dispatch(removeCurrency(currency));
 	};
 
-	const handleReset = () => {
-		sessionStorage.removeItem("selectedCurrencies");
-		sessionStorage.removeItem("convertedValues");
-		window.location.reload();
+	const handleResetCurrencies = () => {
+		dispatch(resetCurrencies());
+		dispatch(convertAllCurrencies({ amount: 1, fromCurrency: "USD" }));
+	};
+
+	const onInputChange = (
+		e: React.ChangeEvent<HTMLInputElement>,
+		currency: string
+	) => {
+		const newValue = e.target.value;
+		setInputValues((prev) => ({ ...prev, [currency]: newValue }));
+
+		if (newValue === "") {
+			const resetValues = selectedCurrencies.reduce((acc, curr) => {
+				acc[curr] = "0";
+				return acc;
+			}, {} as Record<string, string>);
+			setInputValues(resetValues);
+			dispatch(setConvertedValues({}));
+			return;
+		}
+
+		const amount = parseFloat(newValue);
+		if (!isNaN(amount)) {
+			dispatch(convertAllCurrencies({ amount, fromCurrency: currency }));
+		}
 	};
 
 	return (
@@ -95,47 +107,28 @@ const Form: React.FC<{ showAllCurrencies?: boolean }> = ({
 						showAllCurrencies ? "form__rows--two-columns" : ""
 					}`}
 				>
-					{displayedCurrencies &&
-						Object.entries(displayedCurrencies).length > 0 &&
-						Object.entries(displayedCurrencies).map(
-							([currency, initialRate]) => (
-								<div className="form__row" key={currency}>
-									<label htmlFor={currency}>{currency}</label>
+					{Object.keys(inputValues).map((currency) => (
+						<div className="form__row" key={currency}>
+							<label htmlFor={currency}>{currency}</label>
 
-									<input
-										type="number"
-										value={parseFloat(
-											(
-												convertedValues[currency] ??
-												initialRate
-											).toFixed(4)
-										)}
-										onChange={(e) => {
-											const newAmount =
-												parseFloat(e.target.value) || 0;
-											handleInputChange(
-												newAmount,
-												currency
-											);
-										}}
-									/>
+							<input
+								id={currency}
+								type="number"
+								value={inputValues[currency] || ""}
+								onChange={(e) => onInputChange(e, currency)}
+							/>
 
-									{!showAllCurrencies &&
-										!initialCurrencies.includes(
-											currency
-										) && (
-											<button
-												type="button"
-												onClick={() =>
-													handleRemoveCurrency(
-														currency
-													)
-												}
-											></button>
-										)}
-								</div>
-							)
-						)}
+							{!initialCurrencies.includes(currency) &&
+								!showAllCurrencies && (
+									<button
+										type="button"
+										onClick={() =>
+											handleRemoveCurrency(currency)
+										}
+									></button>
+								)}
+						</div>
+					))}
 				</div>
 
 				{!showAllCurrencies && (
@@ -146,7 +139,12 @@ const Form: React.FC<{ showAllCurrencies?: boolean }> = ({
 									options={availableCurrencies}
 									onChange={handleSelectCurrency}
 									menuIsOpen
-									onBlur={() => setShowDropdown(false)}
+									onBlur={() =>
+										setTimeout(
+											() => setShowDropdown(false),
+											100
+										)
+									}
 									autoFocus
 									menuPlacement="auto"
 								/>
@@ -167,7 +165,10 @@ const Form: React.FC<{ showAllCurrencies?: boolean }> = ({
 								</button>
 							</div>
 
-							<button type="button" onClick={handleReset}>
+							<button
+								type="button"
+								onClick={handleResetCurrencies}
+							>
 								Reset Currencies
 							</button>
 						</div>

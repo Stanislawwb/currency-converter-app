@@ -1,73 +1,48 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
-interface SelectedCurrenciesState {
-	selected: Record<string, number>;
-}
+const initialCurrencies = ["USD", "EUR", "RUB", "BYN"];
 
-const defaultSelectedCurrencies = {
-	USD: 1,
-	EUR: 0,
-	RUB: 0,
-	BYN: 0,
-	PLN: 0,
-	CNY: 0,
-};
+const storedCurrencies = JSON.parse(
+	sessionStorage.getItem("selectedCurrencies") || "null"
+);
 
-const loadState = (): SelectedCurrenciesState => {
-	try {
-		const storedData = sessionStorage.getItem("selectedCurrencies");
-		return storedData
-			? { selected: JSON.parse(storedData) }
-			: { selected: { ...defaultSelectedCurrencies } };
-	} catch (error) {
-		console.error("Error loading selected currencies:", error);
-		return { selected: { ...defaultSelectedCurrencies } };
-	}
-};
-
-const initialState: SelectedCurrenciesState = loadState();
+const initialState: string[] = storedCurrencies ?? initialCurrencies;
 
 const selectedCurrenciesSlice = createSlice({
 	name: "selectedCurrencies",
 	initialState,
 	reducers: {
-		setInitialCurrencies: (
-			state,
-			action: PayloadAction<Record<string, number>>
-		) => {
-			state.selected = action.payload ?? {};
-			sessionStorage.setItem(
-				"selectedCurrencies",
-				JSON.stringify(state.selected)
-			);
-		},
-		addCurrency: (
-			state,
-			action: PayloadAction<{ currency: string; rate: number }>
-		) => {
-			if (!state.selected[action.payload.currency]) {
-				state.selected[action.payload.currency] = action.payload.rate;
+		addCurrency: (state, action: PayloadAction<string>) => {
+			if (!state.includes(action.payload)) {
+				state.push(action.payload);
+
 				sessionStorage.setItem(
 					"selectedCurrencies",
-					JSON.stringify(state.selected)
+					JSON.stringify(state)
 				);
 			}
 		},
 		removeCurrency: (state, action: PayloadAction<string>) => {
-			const newSelected = { ...state.selected };
-
-			delete newSelected[action.payload];
-
-			state.selected = newSelected;
-
+			const updatedState = state.filter(
+				(currency) => currency !== action.payload
+			);
 			sessionStorage.setItem(
 				"selectedCurrencies",
-				JSON.stringify(state.selected)
+				JSON.stringify(updatedState)
 			);
+			return updatedState;
+		},
+		resetCurrencies: () => {
+			sessionStorage.setItem(
+				"selectedCurrencies",
+				JSON.stringify(initialCurrencies)
+			);
+			return initialCurrencies;
 		},
 	},
 });
 
-export const { setInitialCurrencies, addCurrency, removeCurrency } =
+export const { addCurrency, removeCurrency, resetCurrencies } =
 	selectedCurrenciesSlice.actions;
+export { initialCurrencies };
 export default selectedCurrenciesSlice.reducer;

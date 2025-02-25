@@ -65,7 +65,9 @@ export const convertAllCurrencies: RequestHandler = async (req, res, next) => {
 		const convertedValues: Record<string, number> = {};
 
 		rates.forEach((rate, currency) => {
-			convertedValues[currency] = baseAmount * rate;
+			convertedValues[currency] = parseFloat(
+				(baseAmount * rate).toFixed(4)
+			);
 		});
 
 		res.json({

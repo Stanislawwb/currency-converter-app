@@ -8,26 +8,11 @@ interface ConversionState {
 	error: string | null;
 }
 
-const loadState = (): ConversionState => {
-	try {
-		const storedData = sessionStorage.getItem("convertedValues");
-
-		if (storedData === null) {
-			return { convertedValues: {}, loading: false, error: null };
-		}
-		const parsedData = JSON.parse(storedData);
-		return {
-			convertedValues: parsedData ?? {},
-			loading: false,
-			error: null,
-		};
-	} catch (error) {
-		console.error(error);
-		return { convertedValues: {}, loading: false, error: null };
-	}
+const initialState: ConversionState = {
+	convertedValues: {},
+	loading: false,
+	error: null,
 };
-
-const initialState: ConversionState = loadState();
 
 export const convertAllCurrencies = createAsyncThunk(
 	"conversion/converetAll",
@@ -48,11 +33,6 @@ export const convertAllCurrencies = createAsyncThunk(
 
 		const data = await response.json();
 
-		sessionStorage.setItem(
-			"convertedValues",
-			JSON.stringify(data.convertedValues || {})
-		);
-
 		return data.convertedValues;
 	}
 );
@@ -60,7 +40,15 @@ export const convertAllCurrencies = createAsyncThunk(
 const conversionSlice = createSlice({
 	name: "conversion",
 	initialState,
-	reducers: {},
+	reducers: {
+		setConvertedValues: (state, action) => {
+			state.convertedValues = action.payload;
+			localStorage.setItem(
+				"convertedValues",
+				JSON.stringify(action.payload)
+			);
+		},
+	},
 	extraReducers: (builder) => {
 		builder
 			.addCase(convertAllCurrencies.pending, (state) => {
@@ -69,15 +57,7 @@ const conversionSlice = createSlice({
 			})
 			.addCase(convertAllCurrencies.fulfilled, (state, action) => {
 				state.loading = false;
-				state.convertedValues =
-					action.payload && Object.keys(action.payload).length > 0
-						? action.payload
-						: state.convertedValues;
-
-				sessionStorage.setItem(
-					"convertedValues",
-					JSON.stringify(state.convertedValues)
-				);
+				state.convertedValues = action.payload ?? state.convertedValues;
 			})
 			.addCase(convertAllCurrencies.rejected, (state, action) => {
 				state.loading = false;
@@ -88,3 +68,4 @@ const conversionSlice = createSlice({
 });
 
 export default conversionSlice.reducer;
+export const { setConvertedValues } = conversionSlice.actions;

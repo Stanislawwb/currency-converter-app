@@ -1,30 +1,29 @@
 import { useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import { fetchCurrencies } from "../state/currencies/currencySlice";
 import { AppDispatch, RootState } from "../state/store";
+import { useSelector } from "react-redux";
+import { convertAllCurrencies } from "../state/currencies/conversionSlice";
 
 export function useFetchCurrencies() {
 	const dispatch = useDispatch<AppDispatch>();
 	const [dataLoaded, setDataLoaded] = useState(false);
-	const currencyRates = useSelector(
-		(state: RootState) => state.currency.rates
-	);
+	const rates = useSelector((state: RootState) => state.currency.rates);
 
 	useEffect(() => {
-		const storedRates = sessionStorage.getItem("convertedValues");
-
-		if (storedRates) {
-			setDataLoaded(true);
-		} else {
-			dispatch(fetchCurrencies()).then((response) => {
-				sessionStorage.setItem(
-					"convertedValues",
-					JSON.stringify(response.payload.rates)
-				);
-				setDataLoaded(true);
+		if (Object.keys(rates).length === 0) {
+			dispatch(fetchCurrencies()).then((result) => {
+				if (result.meta.requestStatus === "fulfilled") {
+					dispatch(
+						convertAllCurrencies({ amount: 1, fromCurrency: "USD" })
+					);
+					setDataLoaded(true);
+				}
 			});
+		} else {
+			setDataLoaded(true);
 		}
-	}, [dispatch]);
+	}, [dispatch, rates]);
 
-	return { dataLoaded, currencyRates };
+	return { dataLoaded };
 }
