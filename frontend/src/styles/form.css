@@ -44,6 +44,7 @@
 
 	.form__row input {
 		flex: 1;
+		min-width: 50px;
 		height: 40px;
 		padding: 0 10px;
 		font-size: 16px;
@@ -165,6 +166,28 @@
 		.form__rows--two-columns {
 			display: flex;
 			gap: 20px;
+		}
+	}
+}
+
+@media (max-width: 767px) {
+	.form {
+		.form__buttons {
+			display: block;
+		}
+
+		.form__add-btn {
+			margin-bottom: 20px;
+		}
+		.form__actions .form__select {
+		}
+
+		.form__inner {
+			padding: 15px 30px 20px 15px;
+		}
+
+		.form__row button {
+			right: -37px;
 		}
 	}
 }

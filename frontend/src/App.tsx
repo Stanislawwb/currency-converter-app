@@ -5,13 +5,18 @@ import { useFetchCurrencies } from "./hooks/useFetchCurrencies";
 import Listing from "./pages/Listing";
 
 function App() {
-	const { dataLoaded } = useFetchCurrencies();
+	const { dataLoaded, error } = useFetchCurrencies();
 
 	if (!dataLoaded) return null;
 
 	return (
 		<Router>
 			<Header />
+			{error && (
+				<div className="error">
+					<strong>{error}</strong>
+				</div>
+			)}
 			<Routes>
 				<Route path="/" element={<Homepage />} />
 

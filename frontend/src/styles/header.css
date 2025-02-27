@@ -18,6 +18,11 @@
 
 	a {
 		color: #fff;
+		transition: color 0.3s;
+
+		&:hover {
+			color: #f78f1e;
+		}
 	}
 
 	.header__menu {
