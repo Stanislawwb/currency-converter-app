@@ -9,10 +9,7 @@ import {
 	resetCurrencies,
 } from "../state/currencies/selectedCurrenciesSlice";
 import { useDispatch } from "react-redux";
-import {
-	convertAllCurrencies,
-	setConvertedValues,
-} from "../state/currencies/conversionSlice";
+import { convertAllCurrencies } from "../state/currencies/conversionSlice";
 
 const availableCurrencies = [
 	{ value: "AED", label: "AED - UAE Dirham" },
@@ -89,7 +86,6 @@ const Form: React.FC<{ showAllCurrencies?: boolean }> = ({
 				return acc;
 			}, {} as Record<string, string>);
 			setInputValues(resetValues);
-			dispatch(setConvertedValues({}));
 			return;
 		}
 

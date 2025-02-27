@@ -40,15 +40,7 @@ export const convertAllCurrencies = createAsyncThunk(
 const conversionSlice = createSlice({
 	name: "conversion",
 	initialState,
-	reducers: {
-		setConvertedValues: (state, action) => {
-			state.convertedValues = action.payload;
-			localStorage.setItem(
-				"convertedValues",
-				JSON.stringify(action.payload)
-			);
-		},
-	},
+	reducers: {},
 	extraReducers: (builder) => {
 		builder
 			.addCase(convertAllCurrencies.pending, (state) => {
@@ -68,4 +60,3 @@ const conversionSlice = createSlice({
 });
 
 export default conversionSlice.reducer;
-export const { setConvertedValues } = conversionSlice.actions;

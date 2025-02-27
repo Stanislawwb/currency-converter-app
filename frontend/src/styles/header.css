@@ -78,7 +78,7 @@
 		}
 
 		.header__nav {
-			display: inline-block;
+			display: none;
 			position: absolute;
 			top: 100%;
 			left: 0;
@@ -94,6 +94,7 @@
 		}
 
 		.header__nav.is-open {
+			display: block;
 			opacity: 1;
 			visibility: visible;
 			pointer-events: auto;

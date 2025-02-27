@@ -1,7 +1,6 @@
 .breadcrumbs {
 	ul {
 		display: flex;
-		gap: 10px;
 		list-style: none;
 	}
 
@@ -9,20 +8,60 @@
 		position: relative;
 	}
 
+	li + li {
+		margin-left: 10px;
+		padding-left: 20px;
+	}
+
+	li + li a {
+		&:before,
+		&:after {
+			position: absolute;
+			content: "";
+			top: 54%;
+			left: 0;
+		}
+
+		&:before {
+			transform: translateY(-50%);
+			width: 10px;
+			height: 2px;
+			background-color: #f78f1e;
+		}
+
+		&:after {
+			left: 5px;
+			border: solid #f78f1e;
+			border-width: 0 2px 2px 0;
+			padding: 2px;
+			transform: translateY(-50%) rotate(-45deg);
+		}
+	}
+
 	a {
-		transition: color 0.3s;
+		transition: opacity 0.3s;
 		text-transform: uppercase;
-		font-size: 16px;
+		font-size: 14px;
+		font-weight: 600;
+		color: #f78f1e;
 
 		&:hover {
-			color: #f78f1e;
+			opacity: 0.8;
 		}
 	}
 
 	a.active {
-		opacity: 0.6;
+		opacity: 0.4;
 		pointer-events: none;
 		cursor: auto;
-		color: inherit;
+		color: #000;
+
+		&:before {
+			background-color: #000;
+		}
+
+		&:after {
+			border-color: #000;
+		}
 	}
 }
