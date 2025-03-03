@@ -1,6 +1,10 @@
 .section-listing {
 	margin-top: 10px;
 
+	h1 {
+		margin-bottom: 10px;
+	}
+
 	.section__content {
 		background-color: #fff;
 		padding: 10px 20px;
@@ -11,5 +15,40 @@
 		padding: 10px 20px;
 		border-bottom: 1px solid #ebebeb;
 		padding-bottom: 10px;
+	}
+
+	.section__buttons {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+	}
+
+	.section__sorting {
+		display: inline-block;
+		border: 1px solid #14509b;
+	}
+
+	.section__buttons button {
+		background-color: transparent;
+		border: none;
+		padding: 5px 10px;
+		font-weight: 600;
+		cursor: pointer;
+		transition: background-color 0.3s, color 0.3s;
+		color: #14509b;
+
+		&:hover {
+			background-color: rgba(206, 206, 206, 0.3);
+		}
+	}
+
+	.section__buttons button.active {
+		background-color: #14509b;
+		color: #fff;
+	}
+
+	.section__buttons button.remove {
+		background-color: rgb(230, 39, 39);
+		color: #fff;
 	}
 }
