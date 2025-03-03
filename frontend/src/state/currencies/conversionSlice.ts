@@ -19,11 +19,21 @@ export const convertAllCurrencies = createAsyncThunk(
 	async ({
 		amount,
 		fromCurrency,
+		sortBy,
 	}: {
 		amount: number;
 		fromCurrency: string;
+		sortBy?: string;
 	}) => {
-		const response = await fetch(`${apiUrl}/convert-all`, {
+		const url = new URL(`${apiUrl}/convert-all`);
+
+		if (sortBy) {
+			url.searchParams.append("sortBy", sortBy);
+		}
+
+		console.log("Fetching from URL:", url.toString());
+
+		const response = await fetch(url.toString(), {
 			method: "POST",
 			headers: { "Content-Type": "application/json" },
 			body: JSON.stringify({ amount, fromCurrency }),
@@ -43,7 +53,8 @@ const conversionSlice = createSlice({
 	reducers: {},
 	extraReducers: (builder) => {
 		builder
-			.addCase(convertAllCurrencies.pending, (state) => {
+			.addCase(convertAllCurrencies.pending, (state, action) => {
+				console.log("Sorting currencies with:", action.meta.arg.sortBy);
 				state.loading = true;
 				state.error = null;
 			})

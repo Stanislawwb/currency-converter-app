@@ -40,6 +40,8 @@ export const convertAllCurrencies: RequestHandler = async (req, res, next) => {
 	try {
 		const { amount, fromCurrency } = req.body;
 
+		const sortBy = req.query.sortBy as "alphabet" | "value" | undefined;
+
 		if (!amount || !fromCurrency) {
 			res.status(400).json({
 				error: "Amount and fromCurrency are required",
@@ -70,11 +72,23 @@ export const convertAllCurrencies: RequestHandler = async (req, res, next) => {
 			);
 		});
 
+		let sortedValues = Object.entries(convertedValues);
+
+		if (sortBy === "alphabet") {
+			sortedValues.sort(([currencyA], [currencyB]) =>
+				currencyA.localeCompare(currencyB)
+			);
+		} else if (sortBy === "value") {
+			sortedValues.sort(([, valueA], [, valueB]) => valueB - valueA);
+		}
+
+		const sortedConvertedValues = Object.fromEntries(sortedValues);
+
 		res.json({
 			baseCurrency: currencyData.baseCurrency,
 			fromCurrency,
 			amount,
-			convertedValues,
+			convertedValues: sortedConvertedValues,
 		});
 	} catch (error) {
 		next(error);

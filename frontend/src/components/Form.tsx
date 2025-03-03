@@ -81,10 +81,15 @@ const Form: React.FC<{ showAllCurrencies?: boolean }> = ({
 		setInputValues((prev) => ({ ...prev, [currency]: newValue }));
 
 		if (newValue === "") {
-			const resetValues = selectedCurrencies.reduce((acc, curr) => {
-				acc[curr] = "0";
+			const resetValues = (
+				showAllCurrencies
+					? Object.keys(convertedValues)
+					: selectedCurrencies
+			).reduce((acc, curr) => {
+				acc[curr] = "";
 				return acc;
 			}, {} as Record<string, string>);
+
 			setInputValues(resetValues);
 			return;
 		}

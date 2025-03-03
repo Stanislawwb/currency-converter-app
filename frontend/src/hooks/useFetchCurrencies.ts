@@ -3,9 +3,16 @@ import { useDispatch, useSelector } from "react-redux";
 import { fetchCurrencies } from "../state/currencies/currencySlice";
 import { convertAllCurrencies } from "../state/currencies/conversionSlice";
 import { AppDispatch, RootState } from "../state/store";
+import { useSearchParams } from "react-router-dom";
 
 export function useFetchCurrencies() {
 	const dispatch = useDispatch<AppDispatch>();
+	const [searchParams] = useSearchParams();
+	const sortBy = searchParams.get("sortBy") as
+		| "alphabet"
+		| "value"
+		| undefined;
+
 	const [dataLoaded, setDataLoaded] = useState(false);
 	const [error, setError] = useState<string | null>(null);
 	const [dataFetched, setDataFetched] = useState(false);
@@ -26,7 +33,11 @@ export function useFetchCurrencies() {
 		dispatch(fetchCurrencies()).then((result) => {
 			if (result.meta.requestStatus === "fulfilled") {
 				dispatch(
-					convertAllCurrencies({ amount: 1, fromCurrency: "USD" })
+					convertAllCurrencies({
+						amount: 1,
+						fromCurrency: "USD",
+						sortBy: sortBy,
+					})
 				);
 				setDataLoaded(true);
 			} else {
