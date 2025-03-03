@@ -42,6 +42,9 @@
 		}
 	}
 
+	.section__buttons button + button {
+		border-left: 1px solid #14509b;
+	}
 	.section__buttons button.active {
 		background-color: #14509b;
 		color: #fff;
@@ -49,6 +52,22 @@
 
 	.section__buttons button.remove {
 		background-color: rgb(230, 39, 39);
+		border: 1px solid rgb(230, 39, 39);
 		color: #fff;
+	}
+}
+
+@media (max-width: 1023px) {
+	.section-listing {
+		.section__sorting {
+			display: flex;
+		}
+		.section__buttons {
+			display: flex;
+			gap: 2px;
+		}
+
+		.section__buttons button {
+		}
 	}
 }
