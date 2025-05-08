@@ -2,6 +2,44 @@
 
 This is a test task application that provides a simple **currency converter** using real-time exchange rates. The project is built using the **MERN stack (MongoDB, Express, React, Node.js)** and includes **TypeScript** and **RTK (Redux Toolkit)** for state management on the frontend.
 
+
+## ⚙️ How the App Works
+
+### 🌍 Core Functionality
+
+- On loading the main page, the app displays the current exchange rates of key currencies (USD, EUR, RUB, BYN) relative to the US dollar.
+- When the user enters a value in one of the input fields, all other fields are **automatically recalculated in real time**.
+- All exchange rate conversions are **processed on the server side**, ensuring consistent and centralized logic.
+
+### ➕ Adding & Removing Currencies
+
+- Users can add new currencies from a predefined list using the **“Add currency”** button.
+- Each newly added currency appears with its own input field and dynamically updates based on the entered value.
+- Currencies can also be removed with a single click.
+
+### 📄 Second Tab: Full Currency List
+
+- A second page/tab displays a **full table of available currencies**, each converted to 1 USD.
+- The list can be **sorted by name or value**, with all sorting handled **server-side**.
+- Switching between tabs preserves the state — previously entered values and selected currencies remain intact without re-fetching data unnecessarily.
+
+### 💾 Caching and Performance
+
+- All exchange rate data is **cached in a MongoDB database**.
+- If data is **less than 2 hours old**, it’s served from the database.
+- Otherwise, the backend fetches updated data from a banking API and updates the database.
+
+### 🧭 Layout & Navigation
+
+- The application includes a **static header** and a **static sidebar**.
+- On **mobile devices**, the top navigation transforms into a **responsive burger menu**, allowing users to toggle the main navigation in a compact and user-friendly way.
+
+### 📱 Responsive & User-Friendly Design
+
+- The interface is fully responsive and optimized for desktop, tablet, and mobile devices.
+- Dynamic currency inputs can be added or removed smoothly, without layout glitches or performance issues.
+- Built with accessibility and user experience in mind.
+
 ---
 
 ## **Live Demo**
